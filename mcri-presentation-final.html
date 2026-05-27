@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCRI · Composite Resilience Index for Ukrainian Public Administration</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<style>
+  /* ===== LIGHT (default) ===== */
+  :root{
+    --bg:#f4f1e9; --bg2:#efece2; --panel:#ffffff; --panel2:#faf7ef;
+    --card1:#ffffff; --card2:#faf7ef; --card-shadow:0 1px 3px rgba(28,34,48,.05);
+    --ink:#1b2230; --muted:#566072; --faint:#8b94a3;
+    --lead:#39414f; --sub:#3b4350; --body:#434c5b;
+    --gold:#8a5e10; --gold-soft:#a87519; --gold-fill:#c2891c; --on-gold:#241a06;
+    --steel:#2f6aa3; --steel-dk:#21527f;
+    --green:#2f7d3f; --red:#bf4736; --amber:#a8761c; --violet:#6f4cb8;
+    --line:rgba(28,34,48,.10); --line2:rgba(28,34,48,.16);
+    --hover:rgba(28,34,48,.045); --fbox-bg:rgba(28,34,48,.035);
+    --atmo:radial-gradient(1100px 700px at 80% -8%, rgba(194,137,28,.14), transparent 60%),
+           radial-gradient(900px 600px at 6% 10%, rgba(47,106,163,.10), transparent 60%),
+           linear-gradient(180deg,#f7f4ed,#f3efe6 60%,#eee9df);
+    --gridtex:rgba(28,34,48,.05);
+    /* chart vars */
+    --chart-grid:rgba(28,34,48,.09); --chart-text:#4a5365;
+    --tip-bg:#ffffff; --tip-bd:rgba(28,34,48,.14); --tip-body:#434c5b;
+    --c-ahp:rgba(47,106,163,.85); --c-pca:rgba(111,76,184,.8); --c-hyb:rgba(194,137,28,.92);
+    --c-line:#b07d1f; --traj-fa:rgba(194,137,28,.20); --traj-fb:rgba(194,137,28,0);
+    --c-pos:rgba(47,125,63,.85); --c-neg:rgba(191,71,54,.85);
+    --c-amber:#a8761c; --point-stroke:#ffffff;
+    --band-green:rgba(47,125,63,.09); --band-red:rgba(191,71,54,.13); --band-amber:rgba(168,118,28,.12);
+    --ref-line:rgba(168,118,28,.7); --ref-text:rgba(138,94,16,.95);
+    --c-s0:#6b7689; --c-s1:#6f4cb8; --c-s2:#2f7d3f; --c-s3:#b07d1f; --c-s4:#2f6aa3;
+    --comp-GE:#2f6aa3; --comp-RL:#3f5e80; --comp-AC:#b07d1f; --comp-IT:#9a7016; --comp-DG:#2f7d3f; --comp-HR:#6f4cb8; --comp-CC:#bf4736;
+    --spark-line:#c2891c; --spark-fill:rgba(194,137,28,.15);
+
+    --serif:'Fraunces',Georgia,serif; --sans:'Hanken Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  /* ===== DARK ===== */
+  html[data-theme="dark"]{
+    --bg:#0b0f17; --bg2:#0f141e; --panel:#141a25; --panel2:#1a2230;
+    --card1:#141a25; --card2:#0f141e; --card-shadow:0 1px 3px rgba(0,0,0,.35);
+    --ink:#ece9e0; --muted:#98a2b3; --faint:#5e6878;
+    --lead:#cfd4dd; --sub:#c0c6d1; --body:#c4cad4;
+    --gold:#d9a441; --gold-soft:#e9c878; --gold-fill:#d9a441; --on-gold:#1a130a;
+    --steel:#6ea8d8; --steel-dk:#8fbce4;
+    --green:#6fc07a; --red:#dd6d5d; --amber:#e3b04a; --violet:#b08fe0;
+    --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.13);
+    --hover:rgba(255,255,255,.05); --fbox-bg:rgba(0,0,0,.25);
+    --atmo:radial-gradient(1100px 700px at 78% -8%, rgba(217,164,65,.10), transparent 60%),
+           radial-gradient(900px 600px at 8% 12%, rgba(110,168,216,.10), transparent 60%),
+           linear-gradient(180deg,#0b0f17,#0a0d14 60%,#090c12);
+    --gridtex:rgba(255,255,255,.08);
+    --chart-grid:rgba(255,255,255,.07); --chart-text:#98a2b3;
+    --tip-bg:#0f141e; --tip-bd:rgba(255,255,255,.14); --tip-body:#c4cad4;
+    --c-ahp:rgba(110,168,216,.78); --c-pca:rgba(176,143,224,.72); --c-hyb:rgba(217,164,65,.92);
+    --c-line:#e9c878; --traj-fa:rgba(233,200,120,.22); --traj-fb:rgba(233,200,120,0);
+    --c-pos:rgba(111,192,122,.85); --c-neg:rgba(221,109,93,.85);
+    --c-amber:#e3b04a; --point-stroke:#0b0f17;
+    --band-green:rgba(111,192,122,.07); --band-red:rgba(221,109,93,.12); --band-amber:rgba(227,176,74,.09);
+    --ref-line:rgba(233,200,120,.55); --ref-text:rgba(233,200,120,.85);
+    --c-s0:#7d8aa0; --c-s1:#b08fe0; --c-s2:#6fc07a; --c-s3:#d9a441; --c-s4:#6ea8d8;
+    --comp-GE:#6ea8d8; --comp-RL:#4a82b6; --comp-AC:#d9a441; --comp-IT:#e9c878; --comp-DG:#6fc07a; --comp-HR:#b08fe0; --comp-CC:#dd6d5d;
+    --spark-line:#e9c878; --spark-fill:rgba(233,200,120,.16);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .4s,color .4s}
+  body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:var(--atmo)}
+  body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.55;
+    background-image:linear-gradient(var(--gridtex) 1px,transparent 1px),linear-gradient(90deg,var(--gridtex) 1px,transparent 1px);
+    background-size:60px 60px;mask-image:radial-gradient(ellipse 100% 80% at 50% 0%,#000 30%,transparent 90%)}
+  ::selection{background:rgba(168,117,25,.22)}
+
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--gold-fill),var(--amber));z-index:120;box-shadow:0 0 10px rgba(194,137,28,.5)}
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;gap:1rem;padding:.65rem clamp(1rem,4vw,3rem);
+    background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:.6rem;font-family:var(--serif);font-weight:600;letter-spacing:.04em;white-space:nowrap;color:var(--ink)}
+  .brand .mark{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;font-family:var(--mono);font-size:.62rem;font-weight:600;
+    background:linear-gradient(135deg,var(--gold-fill),var(--gold));color:var(--on-gold);box-shadow:0 1px 4px rgba(138,94,16,.3)}
+  .brand b{font-size:1.02rem}
+  .navlinks{display:flex;gap:.2rem;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+  .navlinks::-webkit-scrollbar{display:none}
+  .navlinks a{color:var(--muted);text-decoration:none;font-size:.82rem;font-weight:500;padding:.4rem .7rem;border-radius:7px;white-space:nowrap;transition:.2s;position:relative}
+  .navlinks a:hover{color:var(--ink);background:var(--hover)}
+  .navlinks a.active{color:var(--gold)}
+  .navlinks a.active::after{content:"";position:absolute;left:.7rem;right:.7rem;bottom:.12rem;height:2px;background:var(--gold-fill);border-radius:2px}
+  .themebtn{flex:none;width:38px;height:38px;border-radius:10px;border:1px solid var(--line2);background:var(--panel);color:var(--ink);cursor:pointer;display:grid;place-items:center;transition:.2s}
+  .themebtn:hover{border-color:var(--gold-fill);transform:translateY(-1px)}
+  .themebtn svg{width:18px;height:18px}
+  .ic-sun{display:none} .ic-moon{display:block}
+  html[data-theme="dark"] .ic-sun{display:block} html[data-theme="dark"] .ic-moon{display:none}
+
+  section{padding:clamp(4rem,9vh,7rem) clamp(1.1rem,5vw,3rem);max-width:1180px;margin:0 auto;scroll-margin-top:70px}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;display:flex;align-items:center;gap:.7rem}
+  .eyebrow::before{content:"";width:34px;height:1px;background:linear-gradient(90deg,var(--gold-fill),transparent)}
+  h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.9rem,4.4vw,3rem);line-height:1.08;letter-spacing:-.01em;margin-bottom:1.1rem;color:var(--ink)}
+  h3{font-family:var(--serif);font-weight:600;font-size:1.35rem;margin:0 0 .5rem;letter-spacing:-.01em;color:var(--ink)}
+  p.lead{font-size:1.08rem;color:var(--lead);max-width:62ch;margin-bottom:1.6rem}
+  p{color:var(--body)}
+  .muted{color:var(--muted)}
+  .accent{color:var(--gold);font-weight:600}
+
+  #hero{min-height:100vh;max-width:none;display:flex;flex-direction:column;justify-content:center;padding:7rem clamp(1.1rem,5vw,3rem) 4rem;position:relative;overflow:hidden}
+  #hero .inner{max-width:1180px;margin:0 auto;width:100%}
+  .partner{font-family:var(--mono);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--steel-dk);margin-bottom:1.6rem}
+  #hero h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.6rem,7vw,5.6rem);line-height:.98;letter-spacing:-.02em;max-width:18ch;color:var(--ink)}
+  #hero h1 em{font-style:italic;color:var(--gold-soft)}
+  .sub{font-size:clamp(1.05rem,2.2vw,1.35rem);color:var(--sub);max-width:60ch;margin:1.6rem 0 2.4rem}
+  .authors{display:flex;flex-wrap:wrap;gap:.4rem 1.6rem;font-size:.92rem;color:var(--muted);margin-bottom:2.6rem}
+  .authors b{color:var(--ink);font-weight:600}
+  .hero-stats{display:flex;flex-wrap:wrap;gap:2.4rem}
+  .hstat .n{font-family:var(--serif);font-size:clamp(2rem,5vw,3.1rem);font-weight:600;line-height:1}
+  .hstat .n.dn{color:var(--red)} .hstat .n.up{color:var(--green)} .hstat .n.go{color:var(--gold-soft)}
+  .hstat .l{font-size:.8rem;color:var(--muted);margin-top:.35rem;max-width:18ch}
+  .scrollcue{position:absolute;bottom:1.8rem;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;color:var(--faint);text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:.5rem}
+  .scrollcue .dot{width:1px;height:34px;background:linear-gradient(var(--gold-fill),transparent);animation:drop 1.8s infinite}
+  @keyframes drop{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}50.1%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+  .hero-spark{position:absolute;right:0;bottom:7%;width:min(46%,560px);opacity:.9;pointer-events:none}
+
+  .grid{display:grid;gap:1rem}
+  .g3{grid-template-columns:repeat(3,1fr)} .g2{grid-template-columns:repeat(2,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:linear-gradient(180deg,var(--card1),var(--card2));border:1px solid var(--line);border-radius:16px;padding:1.5rem;box-shadow:var(--card-shadow)}
+  .card.hl{border-color:rgba(194,137,28,.45)}
+  .stat .n{font-family:var(--serif);font-size:2.3rem;font-weight:600;line-height:1;color:var(--ink)}
+  .stat .l{font-size:.82rem;color:var(--muted);margin-top:.4rem}
+  .kpi{font-family:var(--mono);color:var(--gold);font-weight:600}
+
+  .chart-wrap{background:linear-gradient(180deg,var(--card1),var(--card2));border:1px solid var(--line);border-radius:18px;padding:1.5rem 1.5rem 1.2rem;box-shadow:var(--card-shadow)}
+  .chart-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:.9rem}
+  .chart-title{font-family:var(--serif);font-size:1.15rem;font-weight:600;color:var(--ink)}
+  .chart-note{font-size:.78rem;color:var(--faint);margin-top:.8rem}
+  .canvas-box{position:relative;height:380px}
+  .canvas-box.tall{height:440px}
+
+  .tabs{display:flex;gap:.4rem;flex-wrap:wrap}
+  .tab{font-family:var(--mono);font-size:.74rem;letter-spacing:.04em;padding:.45rem .8rem;border-radius:8px;border:1px solid var(--line2);background:transparent;color:var(--muted);cursor:pointer;transition:.2s}
+  .tab:hover{color:var(--ink);border-color:var(--gold-fill)}
+  .tab.active{background:var(--gold-fill);color:var(--on-gold);border-color:var(--gold-fill);font-weight:600}
+
+  .steps{display:grid;gap:.8rem;margin-top:1.4rem}
+  .step{display:grid;grid-template-columns:auto 1fr;gap:1.1rem;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.3rem;box-shadow:var(--card-shadow)}
+  .step .idx{font-family:var(--mono);font-size:.8rem;font-weight:600;color:var(--on-gold);background:var(--gold-fill);width:30px;height:30px;border-radius:8px;display:grid;place-items:center;margin-top:.15rem}
+  .step h4{font-family:var(--serif);font-size:1.08rem;margin-bottom:.2rem;color:var(--ink)}
+  .fbox{background:var(--fbox-bg);border:1px solid var(--line);border-radius:10px;padding:.7rem 1rem;margin-top:.7rem;overflow-x:auto}
+  .katex{color:var(--ink)}
+
+  .comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem;margin-top:1.4rem}
+  .comp{display:flex;gap:.7rem;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.85rem .95rem;box-shadow:var(--card-shadow)}
+  .comp .sw{width:11px;height:11px;border-radius:3px;margin-top:.42rem;flex:none}
+  .comp b{display:block;font-size:.92rem;color:var(--ink)}
+  .comp small{color:var(--muted);font-size:.74rem;line-height:1.35}
+
+  .phase{position:relative;border-radius:16px;padding:1.5rem;border:1px solid var(--line);background:var(--panel);overflow:hidden;box-shadow:var(--card-shadow)}
+  .phase::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
+  .phase.p1::before{background:var(--green)} .phase.p2::before{background:var(--red)} .phase.p3::before{background:var(--amber)}
+  .phase .yr{font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;color:var(--muted)}
+  .phase .big{font-family:var(--serif);font-size:1.8rem;font-weight:600;margin:.3rem 0}
+  .phase.p1 .big{color:var(--green)} .phase.p2 .big{color:var(--red)} .phase.p3 .big{color:var(--amber)}
+
+  table{width:100%;border-collapse:collapse;margin-top:1.2rem;font-size:.9rem;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  th,td{text-align:left;padding:.7rem .8rem;border-bottom:1px solid var(--line)}
+  th{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;background:var(--panel2)}
+  td{color:var(--ink)}
+  td.num{font-family:var(--mono);text-align:right}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--hover)}
+  td .barcell{display:inline-block;height:7px;border-radius:4px;background:var(--gold-fill);vertical-align:middle;margin-right:.5rem}
+
+  .takeaways{display:grid;gap:.9rem;margin-top:1.4rem}
+  .take{display:grid;grid-template-columns:auto 1fr;gap:1.1rem;background:linear-gradient(180deg,var(--card1),var(--card2));border:1px solid var(--line);border-radius:14px;padding:1.2rem 1.4rem;box-shadow:var(--card-shadow)}
+  .take .num{font-family:var(--serif);font-size:1.6rem;color:var(--gold-soft);line-height:1}
+  .take b{color:var(--ink)}
+
+  .pill{display:inline-block;font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--line2);color:var(--muted)}
+  .pill.pos{color:var(--green);border-color:rgba(47,125,63,.4)} .pill.neg{color:var(--red);border-color:rgba(191,71,54,.4)}
+
+  footer{max-width:1180px;margin:0 auto;padding:3rem clamp(1.1rem,5vw,3rem) 4rem;border-top:1px solid var(--line);color:var(--faint);font-size:.82rem}
+  footer a{color:var(--steel-dk);text-decoration:none}
+  footer p{color:var(--muted)}
+  .disclaimer{background:var(--fbox-bg);border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;margin-top:1.2rem;font-size:.8rem;color:var(--muted);line-height:1.6}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:820px){
+    .g3,.g2,.g4{grid-template-columns:1fr}
+    .brand b{display:none}
+    .hero-spark{display:none}
+    .canvas-box{height:340px}
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav>
+  <a class="brand" href="#hero" style="text-decoration:none;color:inherit">
+    <span class="mark">MCRI</span><b>Resilience Index</b>
+  </a>
+  <div class="navlinks">
+    <a href="#overview">Overview</a>
+    <a href="#method">Method</a>
+    <a href="#weights">Weights</a>
+    <a href="#phases">Phases</a>
+    <a href="#shapley">Shapley</a>
+    <a href="#projections">Projections</a>
+    <a href="#validation">Validation</a>
+    <a href="#conclusions">Conclusions</a>
+  </div>
+  <button class="themebtn" id="themeBtn" aria-label="Toggle light / dark theme" title="Toggle theme">
+    <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M19.4 4.6l-1.8 1.8M6.4 17.6l-1.8 1.8"/></svg>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <svg class="hero-spark" viewBox="0 0 560 260" fill="none">
+    <text id="sparklabel" x="14" y="16" font-family="JetBrains Mono, monospace" font-size="11" letter-spacing="2">MCRI⁺ · UKRAINE 2015–2024</text>
+    <path id="sparkfill"/>
+    <line id="sparkbase" stroke-dasharray="3 4" stroke-width="1"/>
+    <path id="sparkline" stroke-width="2.5" fill="none"/>
+    <g id="sparkpts"></g>
+  </svg>
+  <div class="inner">
+    <div class="partner">LEEPS Project · UK – Ukraine – Latvia Research Partnership</div>
+    <h1>A Composite <em>Resilience Index</em> for Public Administration Under Conflict</h1>
+    <p class="sub">Constructing, identifying and longitudinally validating the Multi‑Dimensional Composite Resilience Index (MCRI) for Ukrainian governance institutions across <span class="accent">2015–2024</span> — through seven international datasets and a hybrid AHP–PCA weighting scheme.</p>
+    <div class="authors">
+      <span><b>Volodymyr Momot</b></span><span><b>Sergii Kholod</b></span><span><b>Viktoriia Sokolova</b></span>
+      <span>Alfred Nobel University · Dnipro, Ukraine</span>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="n dn">−34%</div><div class="l">collapse of the index at the 2022 conflict shock</div></div>
+      <div class="hstat"><div class="n up">+56%</div><div class="l">pre‑war recovery gained over 2015–2021</div></div>
+      <div class="hstat"><div class="n go">r = 0.91</div><div class="l">external validation vs. Bertelsmann Index</div></div>
+    </div>
+  </div>
+  <div class="scrollcue"><span>Scroll</span><span class="dot"></span></div>
+</section>
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="eyebrow reveal">Overview</div>
+  <h2 class="reveal">What the index measures, and why it matters</h2>
+  <p class="lead reveal">Ukraine since February 2022 has faced one of the most severe stress tests of a European public‑administration system in the post‑Cold‑War era. The MCRI turns fragmented governance signals into a single, comparable, resilience‑specific score — grounded in resilience‑engineering theory and built only from independently published international data.</p>
+  <div class="grid g4">
+    <div class="card stat reveal"><div class="n kpi" style="font-family:var(--serif)">7</div><div class="l">international governance datasets integrated into one composite</div></div>
+    <div class="card stat reveal"><div class="n" style="font-family:var(--serif)">10</div><div class="l">annual observations (2015–2024)</div></div>
+    <div class="card stat reveal"><div class="n" style="font-family:var(--serif)">μ* = 0.60</div><div class="l">optimal blend: 60% expert judgement, 40% data structure</div></div>
+    <div class="card stat reveal"><div class="n" style="font-family:var(--serif)">3</div><div class="l">phases: recovery, shock, partial recovery</div></div>
+  </div>
+  <div class="grid g3" style="margin-top:1rem">
+    <div class="card hl reveal"><h3>Built to be falsifiable</h3><p class="muted" style="font-size:.92rem">Six design commitments: resilience‑theory grounding, multi‑source data, hybrid objective–subjective weights, a non‑linear interaction term, Shapley attribution, and validation against independent benchmarks.</p></div>
+    <div class="card reveal"><h3>The headline arc</h3><p class="muted" style="font-size:.92rem">Steady reform gains (2015–2021), a sharp <span style="color:var(--red);font-weight:600">−34.1%</span> wartime collapse (2022), and a partial <span style="color:var(--green);font-weight:600">+17%</span> rebound by 2024 — still 23% short of the pre‑war peak.</p></div>
+    <div class="card reveal"><h3>The surprising finding</h3><p class="muted" style="font-size:.92rem">Digital government was the <em>only</em> dimension to <span style="color:var(--green);font-weight:600">cushion</span> the shock, while the human and rule‑of‑law dimensions drove most of the collapse.</p></div>
+  </div>
+</section>
+
+<!-- METHOD -->
+<section id="method">
+  <div class="eyebrow reveal">Mathematical Framework</div>
+  <h2 class="reveal">From seven raw signals to one resilience score</h2>
+  <p class="lead reveal">Each indicator is aligned so that higher = more resilient, normalised to [0,1], then aggregated with hybrid weights and a single synergy term.</p>
+  <div class="comp-grid reveal" id="compLegend"></div>
+  <div class="steps reveal">
+    <div class="step"><div class="idx">1</div><div>
+      <h4>Normalisation</h4>
+      <p class="muted" style="font-size:.92rem">Min–max scaling over the full study range maps every heterogeneous indicator onto a common [0,1] axis. Sparse biennial/triennial series (EGDI, SIGMA) are linearly interpolated.</p>
+      <div class="fbox" data-math="$$\tilde{x}_{ij}=\dfrac{x_{ij}-\min_{k\in T}x_{kj}}{\max_{k\in T}x_{kj}-\min_{k\in T}x_{kj}}\in[0,1]$$"></div>
+    </div></div>
+    <div class="step"><div class="idx">2</div><div>
+      <h4>Objective weights — PCA</h4>
+      <p class="muted" style="font-size:.92rem">The first principal component explains <span class="kpi">68.3%</span> of variance (PC₁+PC₂ = 84.7%), confirming a strong shared "institutional resilience" factor. Weights come from its squared loadings.</p>
+      <div class="fbox" data-math="$$w_j^{PCA}=\dfrac{v_{1j}^{2}}{\sum_{k=1}^{p}v_{1k}^{2}}$$"></div>
+    </div></div>
+    <div class="step"><div class="idx">3</div><div>
+      <h4>Subjective weights — AHP</h4>
+      <p class="muted" style="font-size:.92rem">Pairwise comparisons from <span class="kpi">12</span> Ukrainian civil servants, aggregated by geometric mean. Consistency check passes: λ<sub>max</sub>=7.38, CR = 0.048 &lt; 0.10.</p>
+      <div class="fbox" data-math="$$w^{AHP}=\text{eigenvec}_{\max}(A),\qquad CR=\dfrac{CI}{RI}<0.10$$"></div>
+    </div></div>
+    <div class="step"><div class="idx">4</div><div>
+      <h4>Hybrid mixing</h4>
+      <p class="muted" style="font-size:.92rem">A convex blend whose parameter μ is chosen by minimising prediction error against EC Ukraine Progress Reports. Grid search finds <span class="kpi">μ* = 0.60</span>.</p>
+      <div class="fbox" data-math="$$w^{*}=\mu\,w^{AHP}+(1-\mu)\,w^{PCA},\quad \mu\in[0,1]$$"></div>
+    </div></div>
+    <div class="step"><div class="idx">5</div><div>
+      <h4>MCRI + non‑linear synergy</h4>
+      <p class="muted" style="font-size:.92rem">A linear aggregate plus one multiplicative term capturing the Government‑Effectiveness × Digital‑Government synergy, identified by OLS and clipped to keep it from dominating.</p>
+      <div class="fbox" data-math="$$MCRI_t^{+}=\sum_{j=1}^{p}w_j^{*}\,\tilde{x}_{tj}\;+\;\beta\,\tilde{x}_{t,GE}\,\tilde{x}_{t,DG}$$"></div>
+    </div></div>
+    <div class="step"><div class="idx">6</div><div>
+      <h4>Shapley attribution</h4>
+      <p class="muted" style="font-size:.92rem">Cooperative game theory fairly splits each MCRI change across dimensions, satisfying efficiency, symmetry, linearity and the null‑player axiom.</p>
+      <div class="fbox" data-math="$$\phi_j=\sum_{S\subseteq N\setminus\{j\}}\dfrac{|S|!\,(p-|S|-1)!}{p!}\big[v(S\cup\{j\})-v(S)\big]$$"></div>
+    </div></div>
+  </div>
+</section>
+
+<!-- WEIGHTS -->
+<section id="weights">
+  <div class="eyebrow reveal">Weight Identification</div>
+  <h2 class="reveal">Which dimensions carry the index</h2>
+  <p class="lead reveal">Expert judgement and data structure agree on the broad ordering but differ in emphasis. The hybrid blend lands Anti‑Corruption (25.0%) and Institutional Trust (22.9%) as the dominant dimensions — together nearly half of the index.</p>
+  <div class="chart-wrap reveal">
+    <div class="chart-head"><div><div class="chart-title">AHP vs PCA vs Hybrid weights</div><div class="muted" style="font-size:.82rem">Tap legend entries to compare weight sets</div></div></div>
+    <div class="canvas-box"><canvas id="weightsChart"></canvas></div>
+    <div class="chart-note">Hybrid weight = 0.60·AHP + 0.40·PCA. Source: paper Table (§3.5).</div>
+  </div>
+  <table class="reveal" style="margin-top:1.6rem">
+    <thead><tr><th>Component</th><th style="text-align:right">AHP</th><th style="text-align:right">PCA</th><th style="text-align:right">Hybrid w*</th><th>Share</th></tr></thead>
+    <tbody id="weightsTable"></tbody>
+  </table>
+</section>
+
+<!-- PHASES -->
+<section id="phases">
+  <div class="eyebrow reveal">Longitudinal Trajectory</div>
+  <h2 class="reveal">Three phases of institutional resilience</h2>
+  <p class="lead reveal">The full 2015–2024 path of the MCRI⁺. Reform momentum, a near‑vertical wartime cliff, and a slow, uneven climb back.</p>
+  <div class="chart-wrap reveal">
+    <div class="chart-head"><div><div class="chart-title">MCRI⁺ longitudinal trajectory</div><div class="muted" style="font-size:.82rem">Hover points for values · shaded bands mark the three phases</div></div></div>
+    <div class="canvas-box tall"><canvas id="trajChart"></canvas></div>
+    <div class="chart-note">Anchor years (2015, 2021, 2022, 2024) are reported in the paper; intermediate annual points are interpolated for visualisation.</div>
+  </div>
+  <div class="grid g3 reveal" style="margin-top:1.4rem">
+    <div class="phase p1"><div class="yr">PHASE 1 · 2015–2021</div><div class="big">+56%</div><p class="muted" style="font-size:.9rem">Gradual pre‑war recovery, from 0.312 to a peak of <b style="color:var(--ink)">0.487</b>. Driven by anti‑corruption institutions (NABU, SAPO, HACC) and the launch of the Diia platform.</p></div>
+    <div class="phase p2"><div class="yr">PHASE 2 · 2022</div><div class="big">−34.1%</div><p class="muted" style="font-size:.9rem">Acute conflict shock. The index falls 0.166 points to <b style="color:var(--ink)">0.321</b> in a single year — larger than any annual decline in the comparison dataset.</p></div>
+    <div class="phase p3"><div class="yr">PHASE 3 · 2023–2024</div><div class="big">+17%</div><p class="muted" style="font-size:.9rem">Partial recovery to <b style="color:var(--ink)">0.376</b> — uneven across dimensions and still 22.8% below the pre‑war peak. Anti‑corruption rebounds fastest.</p></div>
+  </div>
+</section>
+
+<!-- SHAPLEY -->
+<section id="shapley">
+  <div class="eyebrow reveal">Shapley Decomposition</div>
+  <h2 class="reveal">Who drove each turning point</h2>
+  <p class="lead reveal">A fair attribution of every MCRI change to the seven dimensions. Switch between the three transitions to see how the cast of drivers completely reshuffles.</p>
+  <div class="chart-wrap reveal">
+    <div class="chart-head">
+      <div class="tabs" id="shapTabs">
+        <button class="tab active" data-k="p1">2015 → 2021 · Recovery</button>
+        <button class="tab" data-k="p2">2021 → 2022 · Shock</button>
+        <button class="tab" data-k="p3">2022 → 2024 · Rebound</button>
+      </div>
+      <div id="shapTotal" class="pill pos">ΔMCRI = +0.175</div>
+    </div>
+    <div class="canvas-box tall"><canvas id="shapChart"></canvas></div>
+    <div class="chart-note" id="shapNote"></div>
+  </div>
+  <div class="card hl reveal" style="margin-top:1.4rem">
+    <h3>The key insight</h3>
+    <p style="font-size:.96rem">Governance resilience under acute conflict is driven mainly by the <span class="accent">human, organisational and rule‑of‑law</span> dimensions — Government Effectiveness alone accounts for 38% of the 2022 loss. Yet Digital Government is the lone dimension with a <span style="color:var(--green);font-weight:600">positive</span> Shapley value during the shock: distributed digital infrastructure partially absorbed the blow.</p>
+  </div>
+</section>
+
+<!-- PROJECTIONS -->
+<section id="projections">
+  <div class="eyebrow reveal">Policy Scenarios</div>
+  <h2 class="reveal">Five paths to 2027</h2>
+  <p class="lead reveal">A linear‑increment projection model, calibrated to comparable post‑conflict reform trajectories. Only the combined LEEPS‑aligned strategy restores pre‑war resilience by 2027.</p>
+  <div class="chart-wrap reveal">
+    <div class="chart-head"><div><div class="chart-title">Projected MCRI⁺ under intervention scenarios</div><div class="muted" style="font-size:.82rem">Tap legend to isolate a scenario · dashed line = 2021 pre‑war peak</div></div></div>
+    <div class="canvas-box tall"><canvas id="projChart"></canvas></div>
+    <div class="chart-note">2027 endpoints: S0 = 0.419 · S1 = 0.447 · S2 = 0.452 · S3 = 0.461 · S4 ≈ 0.63. Intermediate years interpolated from the linear‑increment model.</div>
+  </div>
+  <div class="grid g3 reveal" style="margin-top:1.3rem">
+    <div class="card"><h3 style="font-size:1.05rem">Single‑dimension</h3><p class="muted" style="font-size:.88rem">Anti‑Corruption priority (S3, 0.461) is the strongest stand‑alone lever — matching the Shapley finding that AC leads the rebound. All single‑dimension paths fall short of the peak.</p></div>
+    <div class="card"><h3 style="font-size:1.05rem">No intervention</h3><p class="muted" style="font-size:.88rem">Baseline drift (S0) reaches only 0.419 by 2027 — still 14% below pre‑war. Recovery stays incomplete without targeted action.</p></div>
+    <div class="card hl"><h3 style="font-size:1.05rem">Combined (S4)</h3><p class="muted" style="font-size:.88rem">The integrated LEEPS strategy (~0.63) clears the pre‑war peak, amplified by the GE×DG synergy term compounding simultaneous gains.</p></div>
+  </div>
+</section>
+
+<!-- VALIDATION -->
+<section id="validation">
+  <div class="eyebrow reveal">External Validation</div>
+  <h2 class="reveal">Does the index hold up?</h2>
+  <p class="lead reveal">The MCRI is validated against instruments that were never used in its construction — confirming convergent validity while still capturing a sharper, more immediate conflict shock.</p>
+  <div class="grid g4 reveal">
+    <div class="card stat hl"><div class="n" style="font-family:var(--serif);color:var(--gold-soft)">r = 0.91</div><div class="l">Pearson correlation vs. Bertelsmann Transformation Index (p &lt; 0.001, n = 10)</div></div>
+    <div class="card stat"><div class="n" style="font-family:var(--serif)">ρ = 0.88</div><div class="l">Spearman rank correlation — robust to distributional assumptions</div></div>
+    <div class="card stat"><div class="n" style="font-family:var(--serif)">R² = 0.97</div><div class="l">cross‑validation against EC Progress Reports (2022–2024)</div></div>
+    <div class="card stat"><div class="n" style="font-family:var(--serif)">|Δ| ≤ 0.018</div><div class="l">max deviation under cubic‑spline vs. linear interpolation</div></div>
+  </div>
+  <div class="card reveal" style="margin-top:1.2rem">
+    <p class="muted" style="font-size:.94rem">The MCRI and BTI diverge most in 2022–2023, where the MCRI registers a sharper drop — a direct consequence of incorporating the INFORM Lack‑of‑Coping‑Capacity indicator, which reacts immediately to conflict‑induced resource depletion, whereas BTI expert ratings smooth over a longer horizon.</p>
+  </div>
+</section>
+
+<!-- CONCLUSIONS -->
+<section id="conclusions">
+  <div class="eyebrow reveal">Conclusions</div>
+  <h2 class="reveal">Five findings worth carrying forward</h2>
+  <div class="takeaways reveal">
+    <div class="take"><div class="num">01</div><div><b>A measurable arc.</b> Resilience rose +56% (2015–2021), collapsed −34% in 2022, and recovered only +17% by 2024 — leaving institutions 23% below their pre‑war peak.</div></div>
+    <div class="take"><div class="num">02</div><div><b>Trust and integrity dominate.</b> The hybrid weighting puts Anti‑Corruption (25.0%) and Institutional Trust (22.9%) at the centre of resilience, with μ* = 0.60 confirming expert knowledge adds real information.</div></div>
+    <div class="take"><div class="num">03</div><div><b>The shock was human, not technical.</b> Government Effectiveness (38%), Rule of Law (29%) and Institutional Trust (18%) drove the 2022 loss — while Digital Government was the only dimension that cushioned it.</div></div>
+    <div class="take"><div class="num">04</div><div><b>Integrated reform wins.</b> Only the combined LEEPS‑aligned strategy (S4 ≈ 0.63) restores pre‑war resilience by 2027; single‑dimension strategies all fall short.</div></div>
+    <div class="take"><div class="num">05</div><div><b>It validates.</b> Strong convergence with the Bertelsmann Index (r = 0.91) and EC Progress Reports (R² = 0.97) establishes the MCRI as a credible monitoring instrument.</div></div>
+  </div>
+  <div class="card hl reveal" style="margin-top:1.6rem">
+    <h3>Policy implication</h3>
+    <p style="font-size:.96rem">Aid focused mainly on digital or technical capacity risks under‑investing in the human and organisational dimensions that Shapley analysis identifies as the primary resilience drivers — even as distributed digital infrastructure earns recognition as a genuine resilience asset, not merely a service channel.</p>
+  </div>
+</section>
+
+<footer>
+  <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:1.5rem">
+    <div>
+      <div class="brand" style="margin-bottom:.6rem"><span class="mark">MCRI</span><b>Multi‑Dimensional Composite Resilience Index</b></div>
+      <p style="max-width:60ch">Momot, V., Kholod, S., &amp; Sokolova, V. — Alfred Nobel University, Dnipro. Prepared within the LEEPS project (UK–Ukraine–Latvia). Received 16.04.2026.</p>
+    </div>
+  </div>
+  <div class="disclaimer">
+    <b style="color:var(--muted)">Note on visualisation.</b> This interactive presentation restructures the source paper. Headline values, weights, Shapley shares for the highlighted drivers, validation statistics and 2027 scenario endpoints are taken directly from the text. Where the paper reports only anchor years or category totals (intermediate annual MCRI points, projection mid‑years, and the smaller Shapley sub‑components), values shown here are interpolated or reconstructed to match the stated totals and ordering, purely for display.
+  </div>
+</footer>
+
+<script>
+const root=document.documentElement;
+const cv=n=>getComputedStyle(root).getPropertyValue(n).trim();
+
+/* ---------- data ---------- */
+const COMPS=[
+  {k:'GE',name:'Government Effectiveness',src:'WGI · World Bank'},
+  {k:'RL',name:'Rule of Law',src:'WGI · World Bank'},
+  {k:'AC',name:'Anti‑Corruption',src:'CPI · Transparency Int’l'},
+  {k:'IT',name:'Institutional Trust',src:'Freedom House · NiT'},
+  {k:'DG',name:'Digital Government',src:'UN EGDI'},
+  {k:'HR',name:'Civil‑Service HR Maturity',src:'SIGMA / OECD‑EU'},
+  {k:'CC',name:'Coping Capacity',src:'INFORM Risk Index (inv.)'},
+];
+const WEIGHTS={GE:{ahp:.164,pca:.214,hyb:.182},RL:{ahp:.131,pca:.189,hyb:.155},
+  AC:{ahp:.243,pca:.259,hyb:.250},IT:{ahp:.218,pca:.244,hyb:.229},
+  DG:{ahp:.071,pca:.088,hyb:.078},HR:{ahp:.102,pca:.112,hyb:.106},CC:{ahp:.071,pca:.094,hyb:.080}};
+const compColor=k=>cv('--comp-'+k);
+const trajYears=['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'];
+const trajVals=[.312,.345,.375,.405,.435,.465,.487,.321,.355,.376];
+const maxHyb=Math.max(...COMPS.map(c=>WEIGHTS[c.k].hyb));
+
+/* ---------- statics that depend on theme colours ---------- */
+function buildLegend(){
+  document.getElementById('compLegend').innerHTML=COMPS.map(c=>`
+    <div class="comp"><span class="sw" style="background:${compColor(c.k)}"></span>
+      <div><b>${c.k} · ${c.name}</b><small>${c.src}</small></div></div>`).join('');
+}
+function buildTable(){
+  document.getElementById('weightsTable').innerHTML=COMPS.slice()
+    .sort((a,b)=>WEIGHTS[b.k].hyb-WEIGHTS[a.k].hyb)
+    .map(c=>{const w=WEIGHTS[c.k];return `<tr>
+      <td><b style="color:${compColor(c.k)}">${c.k}</b> &nbsp;${c.name}</td>
+      <td class="num">${w.ahp.toFixed(3)}</td><td class="num">${w.pca.toFixed(3)}</td>
+      <td class="num" style="color:var(--gold)">${w.hyb.toFixed(3)}</td>
+      <td><span class="barcell" style="width:${(w.hyb/maxHyb*120).toFixed(0)}px;background:${compColor(c.k)}"></span>${(w.hyb*100).toFixed(1)}%</td></tr>`}).join('');
+}
+function buildSpark(){
+  const W=560,H=260,padX=14,padT=34,padB=24;
+  const mn=Math.min(...trajVals),mx=Math.max(...trajVals);
+  const x=i=>padX+i*(W-2*padX)/(trajVals.length-1);
+  const y=v=>H-padB-((v-mn)/(mx-mn))*(H-padT-padB);
+  const pts=trajVals.map((v,i)=>[x(i),y(v)]);
+  const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  document.getElementById('sparkline').setAttribute('d',line);
+  document.getElementById('sparkline').setAttribute('stroke',cv('--spark-line'));
+  const fill=document.getElementById('sparkfill');
+  fill.setAttribute('d',line+` L${x(trajVals.length-1)} ${H-padB} L${x(0)} ${H-padB} Z`);
+  fill.setAttribute('fill',cv('--spark-fill'));
+  const base=document.getElementById('sparkbase');
+  base.setAttribute('x1',padX);base.setAttribute('x2',W-padX);
+  base.setAttribute('y1',H-padB);base.setAttribute('y2',H-padB);
+  base.setAttribute('stroke',cv('--line2'));
+  document.getElementById('sparklabel').setAttribute('fill',cv('--faint'));
+  document.getElementById('sparkpts').innerHTML=pts.map((p,i)=>
+    `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===6?5:3}"
+      fill="${i<7?cv('--c-pos'):i===7?cv('--c-neg'):cv('--c-amber')}"
+      stroke="${cv('--point-stroke')}" stroke-width="1.5"/>`).join('');
+}
+buildLegend();buildTable();buildSpark();
+
+/* ---------- charts ---------- */
+let weightsChart,trajChart,shapChart,projChart;
+const SHAP={
+  p1:{total:'ΔMCRI = +0.175',note:'Phase 1 recovery (2015→2021). Digital Government leads despite its low weight — Shapley captures the large absolute DG gain (ΔDG = +0.31).',
+    data:{GE:.036,RL:.018,AC:.041,IT:.016,DG:.052,HR:.007,CC:.005}},
+  p2:{total:'ΔMCRI = −0.166',note:'Conflict shock (2021→2022). Government Effectiveness contributes 38% of the loss; Digital Government is the lone positive offset.',
+    data:{GE:-.063,RL:-.048,AC:-.001,IT:-.030,DG:.009,HR:-.012,CC:-.021}},
+  p3:{total:'ΔMCRI = +0.055',note:'Partial recovery (2022→2024). Anti‑Corruption leads (33%); Digital Government again contributes positively as a resilience anchor.',
+    data:{GE:.011,RL:.006,AC:.018,IT:.004,DG:.013,HR:.002,CC:.001}},
+};
+const order=['GE','RL','AC','IT','DG','HR','CC'];
+const shapData=key=>order.map(k=>SHAP[key].data[k]);
+let shapKey='p1';
+
+function tipColors(ch){const tt=ch.options.plugins.tooltip;
+  tt.backgroundColor=cv('--tip-bg');tt.borderColor=cv('--tip-bd');tt.titleColor=cv('--ink');tt.bodyColor=cv('--tip-body');}
+
+function gridColor(ch){Object.values(ch.options.scales).forEach(s=>{
+  if(s.grid)s.grid.color=cv('--chart-grid');
+  if(s.ticks)s.ticks.color=cv('--chart-text');
+  if(s.title)s.title.color=cv('--chart-text');});}
+
+function initCharts(){
+  Chart.defaults.color=cv('--chart-text');
+  Chart.defaults.font.family="'Hanken Grotesk',sans-serif";
+  const baseTip={borderWidth:1,padding:10,cornerRadius:8,titleFont:{family:"'Fraunces',serif",weight:'600'}};
+
+  weightsChart=new Chart(document.getElementById('weightsChart'),{
+    type:'bar',
+    data:{labels:COMPS.map(c=>c.k),datasets:[
+      {label:'AHP (expert)',data:COMPS.map(c=>WEIGHTS[c.k].ahp),backgroundColor:cv('--c-ahp'),borderRadius:4},
+      {label:'PCA (data)',data:COMPS.map(c=>WEIGHTS[c.k].pca),backgroundColor:cv('--c-pca'),borderRadius:4},
+      {label:'Hybrid w*',data:COMPS.map(c=>WEIGHTS[c.k].hyb),backgroundColor:cv('--c-hyb'),borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{usePointStyle:true,pointStyle:'rectRounded',padding:16}},
+        tooltip:{...baseTip,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(3)}`}}},
+      scales:{x:{grid:{display:false}},y:{grid:{},ticks:{callback:v=>v.toFixed(2)},title:{display:true,text:'weight'}}}}
+  });
+
+  const phaseBands={id:'phaseBands',beforeDraw(ch){const{ctx,chartArea:a,scales:{x}}=ch;if(!a)return;
+    const half=(x.getPixelForValue(1)-x.getPixelForValue(0))/2;
+    const band=(i0,i1,col)=>{const x0=i0===0?a.left:x.getPixelForValue(i0)-half;const x1=i1===9?a.right:x.getPixelForValue(i1)+half;
+      ctx.fillStyle=col;ctx.fillRect(x0,a.top,x1-x0,a.bottom-a.top);};
+    ctx.save();band(0,6,cv('--band-green'));band(7,7,cv('--band-red'));band(8,9,cv('--band-amber'));
+    const py=ch.scales.y.getPixelForValue(.487);
+    ctx.strokeStyle=cv('--ref-line');ctx.setLineDash([5,5]);ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(a.left,py);ctx.lineTo(a.right,py);ctx.stroke();
+    ctx.setLineDash([]);ctx.fillStyle=cv('--ref-text');ctx.font="11px 'JetBrains Mono'";
+    ctx.fillText('pre‑war peak 0.487',a.left+8,py-6);ctx.restore();}};
+  trajChart=new Chart(document.getElementById('trajChart'),{
+    type:'line',
+    data:{labels:trajYears,datasets:[{label:'MCRI⁺',data:trajVals,
+      borderColor:cv('--c-line'),borderWidth:3,tension:.25,
+      pointRadius:trajYears.map((_,i)=>[0,6,7,9].includes(i)?6:4),
+      pointBackgroundColor:trajVals.map((_,i)=>i<7?cv('--c-pos'):i===7?cv('--c-neg'):cv('--c-amber')),
+      pointBorderColor:cv('--point-stroke'),pointBorderWidth:2,
+      fill:true,backgroundColor:ctx=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,440);
+        g.addColorStop(0,cv('--traj-fa'));g.addColorStop(1,cv('--traj-fb'));return g;}}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...baseTip,callbacks:{label:c=>` MCRI⁺ = ${c.parsed.y.toFixed(3)}`}}},
+      scales:{x:{grid:{display:false}},y:{grid:{},min:.25,max:.55,ticks:{callback:v=>v.toFixed(2)}}}},
+    plugins:[phaseBands]
+  });
+
+  shapChart=new Chart(document.getElementById('shapChart'),{
+    type:'bar',
+    data:{labels:order.map(k=>k+' · '+COMPS.find(c=>c.k===k).name),
+      datasets:[{label:'Shapley value φ',data:shapData('p1'),
+        backgroundColor:ctx=>ctx.raw>=0?cv('--c-pos'):cv('--c-neg'),borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...baseTip,callbacks:{label:c=>` φ = ${c.parsed.x>=0?'+':''}${c.parsed.x.toFixed(3)}`}}},
+      scales:{x:{grid:{},ticks:{callback:v=>(v>0?'+':'')+v.toFixed(2)},title:{display:true,text:'contribution to ΔMCRI'}},y:{grid:{display:false}}}}
+  });
+  document.getElementById('shapNote').textContent=SHAP.p1.note;
+
+  const pYears=['2024','2025','2026','2027'];
+  const scen=[
+    {data:[.376,.390,.405,.419],lab:'S0 · No intervention'},
+    {data:[.376,.400,.423,.447],lab:'S1 · HR Maturity'},
+    {data:[.376,.401,.427,.452],lab:'S2 · Digital Gov.'},
+    {data:[.376,.404,.433,.461],lab:'S3 · Anti‑Corruption'},
+    {data:[.376,.461,.545,.630],lab:'S4 · Combined LEEPS'},
+  ];
+  const peakLine={id:'peakLine',afterDraw(ch){const{ctx,chartArea:a}=ch;const py=ch.scales.y.getPixelForValue(.487);
+    ctx.save();ctx.strokeStyle=cv('--ref-line');ctx.setLineDash([6,5]);ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(a.left,py);ctx.lineTo(a.right,py);ctx.stroke();
+    ctx.setLineDash([]);ctx.fillStyle=cv('--ref-text');ctx.font="11px 'JetBrains Mono'";
+    ctx.fillText('2021 pre‑war peak 0.487',a.left+8,py-6);ctx.restore();}};
+  projChart=new Chart(document.getElementById('projChart'),{
+    type:'line',
+    data:{labels:pYears,datasets:scen.map((s,i)=>({label:s.lab,data:s.data,
+      borderColor:cv('--c-s'+i),backgroundColor:cv('--c-s'+i),
+      borderWidth:s.lab.includes('Combined')?3:2,borderDash:s.lab.includes('No intervention')?[5,4]:[],
+      tension:.2,pointRadius:3,pointHoverRadius:6}))},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{usePointStyle:true,pointStyle:'line',padding:14}},
+        tooltip:{...baseTip,callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(3)}`}}},
+      scales:{x:{grid:{display:false}},y:{grid:{},min:.35,max:.66,ticks:{callback:v=>v.toFixed(2)}}}},
+    plugins:[peakLine]
+  });
+
+  [weightsChart,trajChart,shapChart,projChart].forEach(ch=>{gridColor(ch);tipColors(ch);ch.update();});
+
+  document.querySelectorAll('#shapTabs .tab').forEach(btn=>btn.addEventListener('click',()=>{
+    document.querySelectorAll('#shapTabs .tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');shapKey=btn.dataset.k;
+    shapChart.data.datasets[0].data=shapData(shapKey);shapChart.update();
+    const t=document.getElementById('shapTotal');t.textContent=SHAP[shapKey].total;
+    t.className='pill '+(shapKey==='p2'?'neg':'pos');
+    document.getElementById('shapNote').textContent=SHAP[shapKey].note;
+  }));
+}
+
+/* ---------- re-theme charts on toggle ---------- */
+function restyleCharts(){
+  if(!weightsChart)return;
+  Chart.defaults.color=cv('--chart-text');
+  weightsChart.data.datasets[0].backgroundColor=cv('--c-ahp');
+  weightsChart.data.datasets[1].backgroundColor=cv('--c-pca');
+  weightsChart.data.datasets[2].backgroundColor=cv('--c-hyb');
+  const td=trajChart.data.datasets[0];
+  td.borderColor=cv('--c-line');
+  td.pointBackgroundColor=trajVals.map((_,i)=>i<7?cv('--c-pos'):i===7?cv('--c-neg'):cv('--c-amber'));
+  td.pointBorderColor=cv('--point-stroke');
+  projChart.data.datasets.forEach((d,i)=>{d.borderColor=cv('--c-s'+i);d.backgroundColor=cv('--c-s'+i);});
+  /* shap + traj-fill + plugin bands/refs read CSS vars at draw time -> auto-adapt */
+  [weightsChart,trajChart,shapChart,projChart].forEach(ch=>{gridColor(ch);tipColors(ch);ch.update();});
+}
+
+/* ---------- theme toggle (no storage — session only) ---------- */
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  const next=root.getAttribute('data-theme')==='dark'?'light':'dark';
+  root.setAttribute('data-theme',next);
+  buildLegend();buildTable();buildSpark();restyleCharts();
+});
+
+/* ---------- init ---------- */
+window.addEventListener('DOMContentLoaded',()=>{
+  if(window.renderMathInElement){
+    document.querySelectorAll('[data-math]').forEach(el=>{
+      try{katex.render(el.dataset.math.replace(/^\$\$|\$\$$/g,''),el,{displayMode:true,throwOnError:false});}catch(e){el.textContent=el.dataset.math;}
+    });
+  }
+  initCharts();
+});
+
+/* ---------- scroll: progress + active nav + reveal ---------- */
+const links=[...document.querySelectorAll('.navlinks a')];
+const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+const prog=document.getElementById('progress');
+function onScroll(){
+  const h=document.documentElement;
+  prog.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  let cur=secs.length-1;
+  for(let i=0;i<secs.length;i++){if(secs[i].getBoundingClientRect().top<=120)cur=i;}
+  links.forEach((l,i)=>l.classList.toggle('active',i===cur));
+}
+window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+const io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
